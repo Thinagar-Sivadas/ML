@@ -1,6 +1,4 @@
 import numpy as np
-import sys
-sys.path.append("..")
 from utils.distance_metrics import DistanceMetrics
 from utils.scoring_metrics import ScoringMetrics
 from utils.plot_knn import PlotKNN
