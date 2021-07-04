@@ -5,6 +5,7 @@ from utils.plot_kmeans import PlotKMeans
 
 class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
     """Kmeans
+    https://www.youtube.com/watch?v=vtuH4VRq1AU&ab_channel=PythonEngineer
 
     Args:
         DistanceMetrics (obj): Performs distance metrics calculation

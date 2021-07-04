@@ -5,6 +5,7 @@ from utils.plot_kmedoids import PlotKMedoids
 
 class KMedoids(DistanceMetrics, PlotKMedoids, ScoringMetrics):
     """KMedoids
+    https://towardsdatascience.com/understanding-k-means-k-means-and-k-medoids-clustering-algorithms-ad9c9fbf47ca
 
     Args:
         DistanceMetrics (obj): Performs distance metrics calculation
