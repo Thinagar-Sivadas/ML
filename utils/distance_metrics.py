@@ -29,4 +29,4 @@ class DistanceMetrics(object):
         A = np.sum(self.var1**2,axis=1).reshape(-1, 1)
         B = np.sum(self.var2**2,axis=1).reshape(1, -1)
         C = -2 * (np.dot(self.var1, self.var2.T))
-        return np.sqrt(A+B+C)
+        return np.sqrt(np.abs(A+B+C))

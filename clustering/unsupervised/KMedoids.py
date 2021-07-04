@@ -1,18 +1,18 @@
 import numpy as np
 from utils.distance_metrics import DistanceMetrics
 from utils.scoring_metrics import ScoringMetrics
-from utils.plot_kmeans import PlotKMeans
+from utils.plot_kmedoids import PlotKMedoids
 
-class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
-    """Kmeans
+class KMedoids(DistanceMetrics, PlotKMedoids, ScoringMetrics):
+    """KMedoids
 
     Args:
         DistanceMetrics (obj): Performs distance metrics calculation
-        PlotKMeans (obj): Performs plot
+        PlotKMedoids (obj): Performs plot
         ScoringMetrics (obj): Performs scoring metrics calculation
     """
 
-    def __init__(self, n_clusters, init='k-means++', max_iter=300, tol=1e-4, centroids=None, n_init=10):
+    def __init__(self, n_clusters, init='k-medoids++', max_iter=300, tol=1e-4, centroids=None, n_init=10):
         """Intialise variables
 
         Args:
@@ -46,7 +46,7 @@ class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
             self.centroids = self.train_data[idx, :]
             print("Centroids intialised randomly")
 
-        elif self.init == 'k-means++':
+        elif self.init == 'k-medoids++':
             centroids = []
             data = self.train_data
             idx = np.random.choice(data.shape[0], 1, replace=False)
@@ -62,7 +62,7 @@ class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
                 data = np.delete(data, idx, axis=0)
 
             self.centroids = np.vstack(centroids)
-            print("Centroids intialised using k-means++")
+            print("Centroids intialised using k-medoids++")
 
     def _tol_criteria(self):
         """Tolerance criterion check
@@ -88,7 +88,7 @@ class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
         self.inertia = inertia
 
     def _train(self):
-        """Training of kmeans
+        """Training of kmedoids
         """
 
         if self.centroids is None:
@@ -99,8 +99,14 @@ class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
             labels = self.predict(data=self.train_data)
             self.hist_labels.append(labels)
             # Update centroids
-            self.centroids = np.array([self.train_data[labels == n_cluster].mean(axis=0)
-                                       for n_cluster in range(self.n_clusters)])
+            centroids = []
+            for n_cluster in range(self.n_clusters):
+                var = self.train_data[labels == n_cluster]
+                DistanceMetrics.__init__(self,
+                                         var1=var,
+                                         var2=var)
+                centroids.append(var[np.argmin(self.eucliden_distance().sum(axis=1))])
+            self.centroids = np.array(centroids)
             self.hist_centroids.append(self.centroids)
             if self._tol_criteria() == True:
                 print(f'Tolerance criterion reached at iteration {len(self.hist_centroids)-1}')
@@ -185,7 +191,7 @@ class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
         """Plot train
         """
 
-        PlotKMeans.__init__(self)
+        PlotKMedoids.__init__(self)
 
         if self.n_features == 1:
             self.plot_training_1d(
@@ -215,7 +221,7 @@ class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
             test_data (numpy): Test data
         """
 
-        PlotKMeans.__init__(self)
+        PlotKMedoids.__init__(self)
 
         if self.n_features == 1:
             self.plot_testing_1d(
