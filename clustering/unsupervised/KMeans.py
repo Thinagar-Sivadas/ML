@@ -4,7 +4,7 @@ from utils.scoring_metrics import ScoringMetrics
 from utils.plot_kmeans import PlotKMeans
 
 class KMeans(DistanceMetrics, PlotKMeans, ScoringMetrics):
-    """Kmeans
+    """Kmeans using Lloyd's update algorithm
     https://www.youtube.com/watch?v=vtuH4VRq1AU&ab_channel=PythonEngineer
 
     Args:
