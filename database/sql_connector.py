@@ -16,44 +16,62 @@ class SqlConnector(ConfigInit):
 
         ConfigInit.__init__(self)
         self.create_connection()
-        self.create_databases_tables_views()
+        self.create_database()
+        self.create_tables()
+        self.create_views()
         self.create_user()
 
     def create_connection(self):
         """Creates connection
         """
-        params = urllib.parse.quote_plus('DRIVER='+self.db_credential['driver']+
-                                         ';SERVER='+self.db_credential['server']+
-                                         ';DATABASE='+self.db_credential['access_database']+
-                                         ';UID='+self.db_credential['username']+
-                                         ';PWD='+ self.db_credential['password'])
-        self.db_credential_engine = sql.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params,
+
+        params = urllib.parse.quote_plus('DRIVER='+self.sql_credentials['driver']+
+                                         ';SERVER='+self.sql_credentials['server']+
+                                         ';DATABASE='+self.sql_credentials['db_admin']['default_database']+
+                                         ';UID='+self.sql_credentials['db_admin']['username']+
+                                         ';PWD='+ self.sql_credentials['db_admin']['password'])
+        self.db_admin_credential_engine = sql.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params,
                                                       connect_args = {'autocommit':True})
 
-        params = urllib.parse.quote_plus('DRIVER='+self.login['driver']+
-                                         ';SERVER='+self.login['server']+
-                                         ';DATABASE='+self.login['access_database']+
-                                         ';UID='+self.login['username']+
-                                         ';PWD='+ self.login['password'])
-        self.engine = sql.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
+        params = urllib.parse.quote_plus('DRIVER='+self.sql_credentials['driver']+
+                                         ';SERVER='+self.sql_credentials['server']+
+                                         ';DATABASE='+self.sql_credentials['database']+
+                                         ';UID='+self.sql_credentials['db_user']['username']+
+                                         ';PWD='+ self.sql_credentials['db_user']['password'])
+        self.db_user_engine = sql.create_engine("mssql+pyodbc:///?odbc_connect=%s" % params)
 
-    def create_databases_tables_views(self):
-        """Create database, tables and views
-
-        Args:
-            queries (list): List of string that contains the query to ingest
+    def create_database(self):
+        """Create databases
         """
 
-        with self.db_credential_engine.connect() as con:
-            for snippet in self.dbs_tables_views_creation:
+        with self.db_admin_credential_engine.connect() as con:
+            for snippet in self.db_creation:
                 con.execute(snippet)
-        print("Databases, Tables and Views configured")
+        print("Databases configured")
+
+    def create_tables(self):
+        """Create tables
+        """
+
+        with self.db_admin_credential_engine.connect() as con:
+            for snippet in self.table_creation:
+                con.execute(snippet)
+        print("Tables configured")
+
+    def create_views(self):
+        """Create views
+        """
+
+        with self.db_admin_credential_engine.connect() as con:
+            for snippet in self.view_creation:
+                con.execute(snippet)
+        print("Views configured")
 
     def create_user(self):
         """Create user
         """
 
-        with self.db_credential_engine.connect() as con:
+        with self.db_admin_credential_engine.connect() as con:
             for snippet in self.user_creation:
                 con.execute(snippet)
         print("User configured")
@@ -68,7 +86,7 @@ class SqlConnector(ConfigInit):
             Pandas Dataframe: Returns sql query wraped in pandas dataframe
         """
 
-        return pd.read_sql(sql, con=self.engine)
+        return pd.read_sql(sql, con=self.db_user_engine)
 
     def ingest_dataframe(self, df, schema, table):
         """Ingest dataframe
@@ -81,7 +99,7 @@ class SqlConnector(ConfigInit):
 
         df.to_sql(name=table,
                   schema=schema,
-                  con = self.engine,
+                  con = self.db_user_engine,
                   if_exists="append",
                   index=False,
                   method="multi",
@@ -96,7 +114,7 @@ class SqlConnector(ConfigInit):
             queries (list): List of string that contains the query to ingest
         """
 
-        with self.engine.connect() as con:
+        with self.db_user_engine.connect() as con:
             for query in queries:
                 con.execute(query)
         print("Data ingested")

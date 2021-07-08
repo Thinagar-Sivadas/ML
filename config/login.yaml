@@ -1,6 +1,0 @@
-username:           "naga"
-password:           "Thinagar3821@"
-server:             "THINAGAR"
-driver:             "{ODBC Driver 17 for SQL Server}"
-access_database:    "DATA"
-access_schema:      "SYNTHETIC"

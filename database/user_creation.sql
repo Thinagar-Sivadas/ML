@@ -4,7 +4,7 @@ IF SUSER_ID('{username}') IS NULL
         WITH PASSWORD='{password}',
         CHECK_EXPIRATION=OFF,
         CHECK_POLICY=OFF,
-        DEFAULT_DATABASE={access_database};
+        DEFAULT_DATABASE={database};
     END
 ELSE
     BEGIN
@@ -13,12 +13,12 @@ ELSE
 
 GO
 
-USE {access_database};
+USE {database};
 IF USER_ID('{username}') IS NULL
     BEGIN
         CREATE USER {username}
         FOR LOGIN {username}
-        WITH DEFAULT_SCHEMA={access_schema};
+        WITH DEFAULT_SCHEMA={schema};
     END
 ELSE
     BEGIN
